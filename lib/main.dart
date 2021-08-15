@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scheduler/Launch%20Bloc/launchbloc.dart';
 import 'package:scheduler/Launch%20Bloc/launchevent.dart';
 import 'package:scheduler/Launch%20Bloc/launchstate.dart';
+import 'package:scheduler/checkData.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,11 @@ void main() async{
           BlocProvider<LaunchBloc>(
             create: (context) {
               return LaunchBloc(InitialState());
+            },
+          ),
+          BlocProvider<DataBloc>(
+            create: (context) {
+              return DataBloc(Init())..add(InitialDataLoaded());
             },
           ),
         ],
@@ -30,10 +36,66 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CSE A',
-      home: MyHomePage(),
+      home: CheckPage(),
     );
   }
 }
+
+class CheckPage extends StatefulWidget {
+  @override
+  _CheckPageState createState() => _CheckPageState();
+}
+
+class _CheckPageState extends State<CheckPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        color: Colors.teal,
+        child: BlocBuilder<DataBloc,DataState>(
+          builder: (context,state){
+            if(state is NewState){
+             return Center(
+                child:Text('New State Data $state'),
+              );
+            }
+            else if(state is Current){
+              return Center(
+                child: Column(
+                  children: [
+                    Text('Other state $state'),
+                    RaisedButton(
+                      onPressed: (){
+                        BlocProvider.of<DataBloc>(context).add(NewDataAdded(name: 'null'));
+
+                      },
+                    ),
+                  ],
+                ),
+
+              );
+            }
+            return Center(
+                child: Column(
+                  children: [
+                    Text('Other state $state'),
+                    RaisedButton(
+                      onPressed: (){
+                        BlocProvider.of<DataBloc>(context).add(NewDataAdded());
+
+                      },
+                    ),
+                  ],
+                ),
+
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -91,7 +153,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         Colors.white38,
                         Colors.lightBlue[100],
                         Colors.red
-
                       ],
                       stops: [0.0,5.0,1.0],
                     )
